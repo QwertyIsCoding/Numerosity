@@ -7,6 +7,8 @@
   <title>Numerosity</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 </head>
 
 <body>
@@ -17,33 +19,38 @@
     <div class="blob"></div>
   </div>
   <nav>
-    <h1 style="font-size: 1.5rem;">Numerosity <span style="font-size: 0.9rem;">Alpha</span></h1>
+    <h1>Numerosity <span class="alpha">V1.0</span></h1>
   </nav>
   <header class="hero">
     <h2>Build Educational Testing Apps<br>in Minutes</h2>
-    <p>Database management, REST API, Firebase integration.<br>Fast to implement, infinitely extensible.</p>
-    <a href="https://github.com/numerosityhq/numerositymirror" class="btn">Download on GitHub</a>
+    <p>Public REST API, Firebase integration, and a Vaadin-backed experience.<br>Built to plug into existing websites fast.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/NumerosityHQ/NumerosityMirror/releases/tag/V1.0" class="btn">Download on GitHub</a>
+    </div>
   </header>
   <section class="features">
     <div class="feature-card">
-      <h3>Scores Database</h3>
-      <p>Robust schema for storing and querying test results efficiently.</p>
+      <h3>Versioned REST API</h3>
+      <p>Public `/api/v1` endpoints for questions, users, and health checks.</p>
     </div>
     <div class="feature-card">
-      <h3>REST API</h3>
-      <p>Quick start endpoints, complete docs—connect in minutes.</p>
+      <h3>Browser Integration</h3>
+      <p>Browser-friendly integration with CORS support and simple fetch examples.</p>
     </div>
     <div class="feature-card">
       <h3>Firebase Ready</h3>
-      <p>Seamless integration with Firebase Firestore and Auth.</p>
+      <p>Firestore-backed user storage when credentials are configured.</p>
     </div>
   </section>
-  <center>
-    <div class="buttons">
-      <button id="open-readme" class="btn" type="button">Open README</button>
-    </div>
-  </center>
-  <br><br>
+  <div class="buttons">
+    <button class="btn" type="button" data-readme="README.md">Open README</button>
+    <button class="btn" type="button" data-readme="README.quickstart.md">Open Quickstart</button>
+    <button class="btn" type="button" data-readme="README.dev.md">Open Developer README</button>
+    <a href="demo.html" class="btn">Open API Demo</a>
+  </div>
+
+  <div id="doc-content" class="markdown-body"></div>
+
   <div class="social">
     <a href="https://github.com/numerosityhq" class="dot-btn" aria-label="GitHub">
       <svg fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,62 +64,62 @@
         <rect x="2" y="9" width="4" height="12" />
       </svg>
     </a>
-
   </div>
 
-  <!-- Markdown renderer + sanitizer + GitHub-markdown CSS -->
+  <footer>
+    <p>&copy; Numerosity 2026</p>
+  </footer>
+
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-
-  <!-- README render area -->
-  <div id="doc-content" class="markdown-body" style="margin: 1rem auto; max-width: 800px; background-color: black; color: white; display: none;"></div>
   <script>
     (function () {
-      const btn = document.getElementById('open-readme');
+      const readmeButtons = document.querySelectorAll('[data-readme]');
       const container = document.getElementById('doc-content');
 
-      async function fetchReadme() {
-        const names = ['README.md', 'Readme.md', 'readme.md'];
-        let text = null;
-        for (const name of names) {
-          try {
-            const res = await fetch(name);
-            if (!res.ok) continue;
-            text = await res.text();
-            break;
-          } catch (e) {
-          }
+      async function fetchReadme(fileName) {
+        try {
+          const res = await fetch(fileName);
+          if (!res.ok) return null;
+          return await res.text();
+        } catch (e) {
+          return null;
         }
-        return text;
       }
 
-      async function showReadme() {
-        btn.disabled = true;
-        btn.textContent = 'Loading...';
-        const md = await fetchReadme();
+      async function showReadme(fileName) {
+        const activeButton = [...readmeButtons].find((button) => button.dataset.readme === fileName);
+        if (activeButton) {
+          activeButton.disabled = true;
+          activeButton.textContent = 'Loading...';
+        }
+        const md = await fetchReadme(fileName);
         if (!md) {
-          btn.disabled = false;
-          btn.textContent = 'Open README';
           container.style.display = 'block';
-          container.innerHTML = '<p><em>Unable to load README.md. Ensure the file is available and served by your web server.</em></p>';
+          container.innerHTML = `<p><em>Unable to load ${fileName}. Ensure the file is available and served by your web server.</em></p>`;
+          if (activeButton) {
+            activeButton.disabled = false;
+            activeButton.textContent = activeButton.dataset.originalText || 'Open README';
+          }
           return;
         }
         const html = marked.parse(md);
         container.innerHTML = DOMPurify.sanitize(html);
         container.style.display = 'block';
-        btn.textContent = 'Refresh README';
-        btn.disabled = false;
+        if (activeButton) {
+          activeButton.textContent = activeButton.dataset.originalText || activeButton.textContent;
+          activeButton.disabled = false;
+        }
       }
 
-      btn.addEventListener('click', showReadme);
+      readmeButtons.forEach((button) => {
+        button.dataset.originalText = button.textContent;
+        button.addEventListener('click', () => showReadme(button.dataset.readme || 'README.md'));
+      });
     })();
   </script>
   <script src="physics.js"></script>
-  <center>
-    <p>&copy; Numerosity 2026</p>
-  </center>
+  <script src="script.js"></script>
 </body>
 
 </html>

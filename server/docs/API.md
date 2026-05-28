@@ -3,158 +3,126 @@
 ## Overview
 
 The Numerosity REST API provides endpoints for:
-- User management
 - Question retrieval
-- Quiz session management
+- User profile and progress storage
+- Health checks for integrations
 
-**Base URL**: `http://localhost:8080/api`
+**Base URL**: `http://localhost:8080/api/v1`
 
 ## Authentication
 
-All API endpoints require authentication via Firebase ID token.
+The public question and health endpoints are open.
+The user endpoints depend on Firebase/Firestore being configured.
 
 ### Headers
 
-```
+```http
 Authorization: Bearer <firebase-id-token>
 Content-Type: application/json
 ```
 
 ## Endpoints
 
+### Health API
+
+#### Health Check
+
+```http
+GET /api/v1/health
+```
+
 ### Questions API
 
 #### Get All Questions
 
-```
-GET /api/questions
+```http
+GET /api/v1/questions
 ```
 
-**Response**:
+**Response**
 ```json
 {
-  "questions": [
-    {
-      "id": "calc1_easy_1",
-      "text": "What is the derivative of f(x) = 5x + 3?",
-      "latex": "f'(x) = ?",
-      "options": [
-        {"id": "a", "text": "5x + 3"},
-        {"id": "b", "text": "5"},
-        {"id": "c", "text": "3"},
-        {"id": "d", "text": "5x"}
-      ],
-      "correct_option_id": "b",
-      "difficulty": "easy",
-      "category": "Calculus 1",
-      "subcategory": "Derivatives",
-      "tags": ["calculus", "derivative", "linear"],
-      "explanation": "The derivative of a linear function ax + b is simply the coefficient a."
-    }
+  "message": "Use /category/{category} or /difficulty/{difficulty} to filter",
+  "endpoints": [
+    "/api/v1/questions/category/{category}",
+    "/api/v1/questions/difficulty/{difficulty}",
+    "/api/v1/questions/random"
   ]
 }
 ```
 
 #### Get Questions by Category
 
-```
-GET /api/questions/category/{category}
+```http
+GET /api/v1/questions/category/{category}
 ```
 
-**Parameters**:
-- `category` - One of: `Calculus 1`, `Geometry`, `Algebra`, `Trigonometry`, `Statistics`
-
-**Example**:
+**Example**
 ```bash
-curl -X GET http://localhost:8080/api/questions/category/Algebra
+curl -X GET http://localhost:8080/api/v1/questions/category/Algebra
 ```
 
 #### Get Questions by Difficulty
 
-```
-GET /api/questions/difficulty/{difficulty}
+```http
+GET /api/v1/questions/difficulty/{difficulty}
 ```
 
-**Parameters**:
-- `difficulty` - One of: `easy`, `medium`, `hard`
-
-**Example**:
+**Example**
 ```bash
-curl -X GET http://localhost:8080/api/questions/difficulty/hard
+curl -X GET http://localhost:8080/api/v1/questions/difficulty/hard
 ```
 
 #### Get Random Question
 
-```
-GET /api/questions/random
+```http
+GET /api/v1/questions/random
 ```
 
-**Query Parameters**:
-- `category` (optional) - Filter by category
-- `difficulty` (optional) - Filter by difficulty
+**Query Parameters**
+- `category` - optional filter by category
+- `difficulty` - optional filter by difficulty
 
-**Example**:
+**Example**
 ```bash
-curl -X GET "http://localhost:8080/api/questions/random?category=Geometry&difficulty=medium"
+curl -X GET "http://localhost:8080/api/v1/questions/random?category=Geometry&difficulty=medium"
 ```
 
 ### Users API
 
 #### Create User
 
-```
-POST /api/users
-```
-
-**Request Body**:
-```json
-{
-  "email": "user@example.com",
-  "username": "user123"
-}
+```http
+POST /api/v1/users
 ```
 
-**Response**:
+**Request Body**
 ```json
 {
   "userId": "abc123",
-  "email": "user@example.com",
-  "username": "user123",
-  "createdAt": "2025-03-30T19:40:00Z"
+  "username": "user123"
 }
 ```
 
 #### Get User by ID
 
-```
-GET /api/users/{userId}
-```
-
-**Response**:
-```json
-{
-  "userId": "abc123",
-  "email": "user@example.com",
-  "username": "user123",
-  "stats": {
-    "totalQuestions": 150,
-    "correctAnswers": 120,
-    "streak": 15
-  }
-}
+```http
+GET /api/v1/users/{userId}
 ```
 
 #### Update User
 
-```
-PUT /api/users/{userId}
+```http
+PUT /api/v1/users/{userId}
 ```
 
-**Request Body**:
-```json
-{
-  "username": "newUsername"
-}
+## CORS
+
+The API sends permissive CORS headers by default so browser-based websites can call it directly.
+To lock it down, set:
+
+```properties
+app.cors.allowed-origins=https://your-website.example
 ```
 
 ## Error Responses
@@ -165,7 +133,7 @@ PUT /api/users/{userId}
 {
   "error": "Invalid request",
   "message": "Email is required",
-  "timestamp": "2025-03-30T19:40:00Z"
+  "timestamp": "2026-05-28T14:45:00-04:00"
 }
 ```
 
@@ -175,7 +143,7 @@ PUT /api/users/{userId}
 {
   "error": "Unauthorized",
   "message": "Invalid or expired token",
-  "timestamp": "2025-03-30T19:40:00Z"
+  "timestamp": "2026-05-28T14:45:00-04:00"
 }
 ```
 
@@ -185,7 +153,7 @@ PUT /api/users/{userId}
 {
   "error": "Not Found",
   "message": "Question not found with id: xyz",
-  "timestamp": "2025-03-30T19:40:00Z"
+  "timestamp": "2026-05-28T14:45:00-04:00"
 }
 ```
 
@@ -195,7 +163,7 @@ PUT /api/users/{userId}
 {
   "error": "Internal Server Error",
   "message": "An unexpected error occurred",
-  "timestamp": "2025-03-30T19:40:00Z"
+  "timestamp": "2026-05-28T14:45:00-04:00"
 }
 ```
 
@@ -204,9 +172,8 @@ PUT /api/users/{userId}
 ### JavaScript (Fetch)
 
 ```javascript
-// Get questions by category
 async function getQuestions(category) {
-  const response = await fetch(`/api/questions/category/${category}`, {
+  const response = await fetch(`/api/v1/questions/category/${category}`, {
     headers: {
       'Authorization': `Bearer ${firebaseToken}`,
       'Content-Type': 'application/json'
@@ -215,15 +182,14 @@ async function getQuestions(category) {
   return await response.json();
 }
 
-// Create a new user
-async function createUser(email, username) {
-  const response = await fetch('/api/users', {
+async function createUser(userId, username) {
+  const response = await fetch('/api/v1/users', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${firebaseToken}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ email, username })
+    body: JSON.stringify({ userId, username })
   });
   return await response.json();
 }
@@ -234,11 +200,11 @@ async function createUser(email, username) {
 ```java
 @RestController
 public class QuestionClient {
-    
+
     private final RestTemplate restTemplate;
-    
+
     public List<Question> getQuestionsByCategory(String category) {
-        String url = "http://localhost:8080/api/questions/category/" + category;
+        String url = "http://localhost:8080/api/v1/questions/category/" + category;
         ResponseEntity<QuestionResponse> response = restTemplate.exchange(
             url,
             HttpMethod.GET,
@@ -247,7 +213,7 @@ public class QuestionClient {
         );
         return response.getBody().getQuestions();
     }
-    
+
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(firebaseToken);
@@ -268,28 +234,30 @@ def get_questions(category, token):
         'Content-Type': 'application/json'
     }
     response = requests.get(
-        f'http://localhost:8080/api/questions/category/{category}',
+        f'http://localhost:8080/api/v1/questions/category/{category}',
         headers=headers
     )
     return response.json()
 ```
 
-## Rate Limiting
+## Packaging
 
-API requests are limited to:
-- **100 requests per minute** per IP address
-- **1000 requests per hour** per authenticated user
+The server builds as a Spring Boot executable JAR.
 
-Rate limit headers are included in all responses:
-```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1617123456
+```bash
+cd server
+mvn clean package
+java -jar target/numerosity-1.0.0.jar
 ```
 
-## Versioning
+## Integration Demo
 
-The API uses URL versioning. Current version: `v1`
+If another developer wants to test the JAR quickly, the public website now includes a browser demo at [`server/website/demo.html`](../website/demo.html).
 
-```
-http://localhost:8080/api/v1/questions
+That demo shows the real integration loop:
+
+1. start the JAR locally
+2. set the frontend base URL to `http://localhost:8080/api/v1`
+3. call `GET /health`
+4. call `GET /questions/category/{category}`
+5. render the JSON response in the browser

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Numerosity API Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .demo-shell {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 1rem 3rem;
+    }
+    .demo-hero {
+      text-align: center;
+      padding: 2rem 0 1rem;
+    }
+    .demo-hero h1 {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      margin-bottom: 0.75rem;
+    }
+    .demo-hero p {
+      max-width: 780px;
+      margin: 0 auto;
+      color: #e3e3e3;
+      line-height: 1.6;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .demo-card {
+      background: rgba(17, 17, 17, 0.92);
+      border: 1px solid #fff;
+      border-radius: 0.9rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+    }
+    .demo-card h2 {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+    .demo-card label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .demo-card input, .demo-card textarea {
+      width: 100%;
+      margin-bottom: 1rem;
+      border-radius: 9999px;
+      border: 1px solid #fff;
+      background: transparent;
+      color: #fff;
+      padding: 0.9rem 1rem;
+      font: inherit;
+    }
+    .demo-card textarea {
+      min-height: 220px;
+      border-radius: 16px;
+      resize: vertical;
+      white-space: pre-wrap;
+    }
+    .demo-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+    .demo-actions .btn {
+      flex: 1 1 180px;
+      text-align: center;
+    }
+    .demo-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .code {
+      background: #0a0a0a;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 1rem;
+      overflow-x: auto;
+      color: #d9d9d9;
+    }
+  </style>
+</head>
+<body>
+  <div class="blob-container">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+  </div>
+
+  <nav>
+    <h1>Numerosity <span class="alpha">Alpha</span></h1>
+    <a href="index.html" class="btn">Back to Site</a>
+  </nav>
+
+  <main class="demo-shell">
+    <section class="demo-hero">
+      <h1>API Integration Demo</h1>
+      <p>Use this page to see how a separate website would talk to the Numerosity JAR. Set the base URL, run a health check, then pull a question set directly from the API.</p>
+      <div class="demo-links">
+        <a href="README.quickstart.md" class="btn">Open Quickstart</a>
+        <a href="README.dev.md" class="btn">Open Developer README</a>
+        <a href="index.html" class="btn">Open Main Site</a>
+      </div>
+    </section>
+
+    <section class="demo-grid">
+      <article class="demo-card">
+        <h2>Try the API</h2>
+        <label for="baseUrl">Backend Base URL</label>
+        <input id="baseUrl" value="http://localhost:8080/api/v1" />
+
+        <label for="category">Question Category</label>
+        <input id="category" value="Algebra" />
+
+        <div class="demo-actions">
+          <button id="healthBtn" class="btn" type="button">Check Health</button>
+          <button id="questionBtn" class="btn" type="button">Load Questions</button>
+        </div>
+      </article>
+
+      <article class="demo-card">
+        <h2>Response</h2>
+        <textarea id="result" readonly>No request sent yet.</textarea>
+      </article>
+    </section>
+
+    <section class="demo-card" style="margin-top: 1.5rem;">
+      <h2>Frontend Example</h2>
+      <pre class="code"><code>const baseUrl = "http://localhost:8080/api/v1";
+
+async function loadRandomQuestion() {
+  const response = await fetch(`${baseUrl}/questions/random?category=Algebra`);
+  if (!response.ok) throw new Error("Request failed");
+  return response.json();
+}</code></pre>
+    </section>
+  </main>
+
+  <script>
+    const baseUrlInput = document.getElementById('baseUrl');
+    const categoryInput = document.getElementById('category');
+    const result = document.getElementById('result');
+
+    function write(value) {
+      result.value = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+    }
+
+    document.getElementById('healthBtn').addEventListener('click', async () => {
+      write('Loading health check...');
+      try {
+        const response = await fetch(`${baseUrlInput.value}/health`);
+        write(await response.json());
+      } catch (error) {
+        write(`Health check failed: ${error.message}`);
+      }
+    });
+
+    document.getElementById('questionBtn').addEventListener('click', async () => {
+      write('Loading questions...');
+      try {
+        const response = await fetch(`${baseUrlInput.value}/questions/category/${encodeURIComponent(categoryInput.value)}`);
+        write(await response.json());
+      } catch (error) {
+        write(`Question request failed: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>

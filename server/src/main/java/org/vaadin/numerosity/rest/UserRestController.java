@@ -16,7 +16,7 @@ import org.vaadin.numerosity.service.UserService;
  */
 @RestController
 @Conditional(org.vaadin.numerosity.config.FirestoreAvailableCondition.class)
-@RequestMapping("/api/users")
+@RequestMapping({"/api/users", "/api/v1/users"})
 public class UserRestController {
     private final UserService userService;
 

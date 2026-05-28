@@ -602,6 +602,31 @@ Numerosity includes:
 * a Vaadin-based application
 * REST APIs
 * Firebase-backed persistence
+
+---
+
+# Demo UI
+<img width="1897" height="922" alt="image" src="https://github.com/user-attachments/assets/f5681be8-a407-43c8-baab-a92888978719" />
+
+---
+
+<img width="1892" height="914" alt="image" src="https://github.com/user-attachments/assets/d0eaa50e-66d4-4866-b840-2e016409e137" />
+
+
+---
+
+<img width="373" height="696" alt="image" src="https://github.com/user-attachments/assets/214dfd97-b543-4439-b0cc-ef0674f851aa" />
+
+---
+
+<img width="554" height="464" alt="image" src="https://github.com/user-attachments/assets/babfb094-cfc8-4e75-9f32-455379639890" />
+
+---
+
+<img width="521" height="723" alt="image" src="https://github.com/user-attachments/assets/155f0912-e774-4567-8490-b87946e13f52" />
+
+---
+
 * dashboards
 * multiple practice modes
 * configurable math practice systems

@@ -1,8 +1,10 @@
 // Theme Toggle
 const toggle = document.getElementById('theme-toggle');
-toggle.addEventListener('change', () => {
-  document.body.classList.toggle('dark');
-});
+if (toggle) {
+  toggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark');
+  });
+}
 
 // Blob subtle movement on mouse move
 const blobs = document.querySelectorAll('.blob');

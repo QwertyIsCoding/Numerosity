@@ -27,6 +27,26 @@ Clicking on the green run button will start the application.
 
 After the application has started, you can view your it at http://localhost:8080/ in your browser.
 
+## API Release
+
+The backend also exposes a public REST surface for external websites and Java clients:
+
+- `GET /api/v1/health`
+- `GET /api/v1/questions`
+- `GET /api/v1/questions/category/{category}`
+- `GET /api/v1/questions/difficulty/{difficulty}`
+- `GET /api/v1/questions/random`
+- `GET /api/v1/users/{userId}`
+
+To build a distributable JAR:
+
+```bash
+cd server
+mvn clean package
+```
+
+The executable artifact will be written to `target/numerosity-1.0.0.jar` with the current version.
+
 
 If you want to run the application locally in the production mode, use `spring-boot:run -Pproduction` command instead.
 ### Running Integration Tests

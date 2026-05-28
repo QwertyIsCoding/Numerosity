@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * REST controller for question operations.
  */
 @RestController
-@RequestMapping("/api/questions")
+@RequestMapping({"/api/questions", "/api/v1/questions"})
 public class QuestionRestController {
 
     private final QuestionSeeder questionSeeder;
@@ -26,7 +26,14 @@ public class QuestionRestController {
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllQuestions() {
-        return ResponseEntity.ok(Map.of("message", "Use /category/{category} or /difficulty/{difficulty} to filter"));
+        return ResponseEntity.ok(Map.of(
+                "message", "Use /category/{category} or /difficulty/{difficulty} to filter",
+                "endpoints", List.of(
+                        "/api/v1/questions/category/{category}",
+                        "/api/v1/questions/difficulty/{difficulty}",
+                        "/api/v1/questions/random"
+                )
+        ));
     }
 
     /**
